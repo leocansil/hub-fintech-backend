@@ -20,34 +20,34 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import br.com.fintech.hub.entities.enums.TipoPessoa;
 
 @Entity
-@Table(name = "PESSOAS")
+@Table(name = "pessoas")
 public class Pessoa implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name = "ID_PESSOA", nullable = false)
+	@Column(name = "id_pessoa", nullable = false)
 	private Long id;
 
 	@NotEmpty
-	@Column(name = "NOME_RAZAO_SOCIAL", nullable = false)
+	@Column(name = "nome_razao_social", nullable = false)
 	private String nomeOuRazaoSocial;
 	
 	@NotEmpty
-	@Column(name = "CPF_CNPJ")
+	@Column(name = "cpf_cnpj")
 	private String cpfCnpj;
 	
-	@Column(name = "NOME_FANTASIA")
+	@Column(name = "nome_fantasia")
 	private String nomeFantasia;
 	
 	@JsonFormat(pattern="dd/MM/yyyy")
-	@Column(name = "DATA_NASCIMENTO")
+	@Column(name = "data_nascimento")
 	private LocalDate dataNascimento;
 	
 	@NotNull
 	@Enumerated(EnumType.STRING)
-	@Column(name = "TIPO_PESSOA")
+	@Column(name = "tipo_pessoa")
 	private TipoPessoa tipoPessoa;
 
 	public Long getId() {

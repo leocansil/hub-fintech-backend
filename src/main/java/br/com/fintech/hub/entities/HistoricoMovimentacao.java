@@ -13,7 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import br.com.fintech.hub.dtos.enums.TipoOperacao;
@@ -42,11 +42,11 @@ public class HistoricoMovimentacao implements Serializable{
 	@Column(name = "DESCRICAO")
 	private String descricao;
 	
-	@OneToMany(fetch=FetchType.EAGER)
+	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="ID_CONTA_ORIGEM")
 	private Conta contaOrigem;
 	
-	@OneToMany(fetch=FetchType.EAGER)
+	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="ID_CONTA_DESTINO")
 	private Conta contaDestino;
 
