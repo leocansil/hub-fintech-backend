@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import br.com.fintech.hub.dtos.AccountMaintenanceError;
 import br.com.fintech.hub.exceptions.DataDuplicityException;
+import br.com.fintech.hub.exceptions.InsufficientFundsException;
 import br.com.fintech.hub.exceptions.NecessaryFieldsException;
 import br.com.fintech.hub.utils.ConstantesUtils;
 import javassist.NotFoundException;
@@ -54,5 +55,15 @@ public class AccountMaintenanceHandlerException {
 		ss.setStatus(ConstantesUtils.STATUS_ERRO);
 		ss.setMensagem("Erro ao processar dados: " + ex.getMessage());
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ss);
+	}
+	
+	@ResponseBody
+	@ExceptionHandler(InsufficientFundsException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ResponseEntity<AccountMaintenanceError> handlerDataDuplicityException(InsufficientFundsException ex) {
+		AccountMaintenanceError ss = new AccountMaintenanceError();
+		ss.setStatus(ConstantesUtils.STATUS_ERRO);
+		ss.setMensagem("Conta não possui saldo suficiente: " + ex.getMessage());
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ss);
 	}
 }

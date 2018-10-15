@@ -1,6 +1,7 @@
 package br.com.fintech.hub.entities;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import javax.persistence.Column;
@@ -14,6 +15,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import br.com.fintech.hub.entities.enums.StatusConta;
 import br.com.fintech.hub.entities.enums.TipoConta;
@@ -29,13 +33,17 @@ public class Conta implements Serializable {
 	@Column(name = "ID_CONTA", nullable = false)
 	private Long id;
 	
+	@JsonFormat(pattern="dd/MM/yyyy")
+	@NotNull
 	@Column(name = "DATA_CRIACAO", nullable = false)
 	private LocalDate dataCriacao;
 	
+	@NotNull
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "ID_PESSOA")
 	private Pessoa pessoa;
 	
+	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "TIPO_CONTA")
 	private TipoConta tipoConta;
@@ -43,6 +51,13 @@ public class Conta implements Serializable {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "STATUS_CONTA")
 	private StatusConta statusConta;
+	
+	@Column(name = "SALDO")
+	private BigDecimal saldo;
+	
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name = "ID_CONTA_PAI")
+	private Conta contaPai;
 
 	public Long getId() {
 		return id;
@@ -82,6 +97,22 @@ public class Conta implements Serializable {
 
 	public void setStatusConta(StatusConta statusConta) {
 		this.statusConta = statusConta;
+	}
+
+	public BigDecimal getSaldo() {
+		return saldo;
+	}
+
+	public void setSaldo(BigDecimal saldo) {
+		this.saldo = saldo;
+	}
+
+	public Conta getContaPai() {
+		return contaPai;
+	}
+
+	public void setContaPai(Conta contaPai) {
+		this.contaPai = contaPai;
 	}
 
 	@Override
