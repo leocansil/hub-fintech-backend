@@ -1,6 +1,7 @@
 package br.com.fintech.hub.services;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,10 +13,12 @@ import org.springframework.stereotype.Service;
 import br.com.fintech.hub.dtos.ContaFilterAporteTransferencia;
 import br.com.fintech.hub.dtos.enums.TipoOperacao;
 import br.com.fintech.hub.entities.Conta;
+import br.com.fintech.hub.entities.HistoricoMovimentacao;
 import br.com.fintech.hub.entities.enums.TipoConta;
 import br.com.fintech.hub.exceptions.InsufficientFundsException;
 import br.com.fintech.hub.exceptions.NecessaryFieldsException;
 import br.com.fintech.hub.repositories.ContaRepository;
+import br.com.fintech.hub.repositories.HistoricoMovimentacaoRepository;
 import javassist.NotFoundException;
 
 @Service
@@ -23,6 +26,9 @@ public class ContaService {
 
 	@Autowired
 	private ContaRepository contaRepository;
+	
+	@Autowired
+	private HistoricoMovimentacaoRepository historicoMovimentacaoRepository;
 	
 	public List<Conta> buscarTodos() {
 		return contaRepository.findAll();
@@ -74,6 +80,17 @@ public class ContaService {
 		
 		return contaResultado;
 	}
+	private HistoricoMovimentacao generate(Conta contaOrigem, Conta contaDestino, BigDecimal valor, String descricao, TipoOperacao tipoOperacao) {
+		HistoricoMovimentacao historicoMovimentacao = new HistoricoMovimentacao();
+		historicoMovimentacao.setDataMovimentacao(LocalDateTime.now());
+		historicoMovimentacao.setContaDestino(contaDestino);
+		historicoMovimentacao.setContaOrigem(contaOrigem);
+		historicoMovimentacao.setValorMovimentado(valor);
+		historicoMovimentacao.setDescricao(descricao);
+		historicoMovimentacao.setTipoOperacao(tipoOperacao);
+		historicoMovimentacaoRepository.save(historicoMovimentacao);
+		return historicoMovimentacao;
+	}
 	
 	@Transactional
 	private Conta transferir(Conta contaOrigem, Conta contaDestino, BigDecimal valor) throws Exception {
@@ -87,6 +104,9 @@ public class ContaService {
 			contaO.setSaldo(contaO.getSaldo().subtract(valor));
 			contaO = contaRepository.save(contaO);
 			contaD = contaRepository.save(contaD);
+			
+			generate(contaO, contaD, valor, "Transferência", TipoOperacao.TRANSFERENCIA);
+			
 			return contaD;
 		}
 		throw new Exception("Contas devem ser informadas para transferência");
@@ -95,10 +115,13 @@ public class ContaService {
 	@Transactional
 	private Conta aporte(Conta conta, BigDecimal aporte, String origemAporte) throws Exception  {
 		if(conta != null) {
-			Conta contaO = buscarConta(conta.getId());
-			contaO.setSaldo(contaO.getSaldo().add(aporte));
-			contaO = contaRepository.save(contaO);
-			return contaO;
+			Conta contaD = buscarConta(conta.getId());
+			contaD.setSaldo(contaD.getSaldo().add(aporte));
+			contaD = contaRepository.save(contaD);
+
+			generate(null, contaD, aporte, "Aporte: " + origemAporte, TipoOperacao.APORTE);
+			
+			return contaD;
 		}
 		throw new Exception("Conta deve ser informadas para aporte");
 	}
