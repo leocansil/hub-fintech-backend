@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -44,7 +45,7 @@ public class Pessoa implements Serializable {
 	@Column(name = "DATA_NASCIMENTO")
 	private LocalDate dataNascimento;
 	
-	//@NotEmpty
+	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "TIPO_PESSOA")
 	private TipoPessoa tipoPessoa;
