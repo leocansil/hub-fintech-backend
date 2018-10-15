@@ -3,7 +3,6 @@ package br.com.fintech.hub.resources;
 import java.net.URI;
 import java.util.List;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,7 @@ public class PessoaResource {
 	private PessoaService pessoaService;
 	
 	@GetMapping
-	public ResponseEntity<List<Pessoa>> listarTodos() {
+	public ResponseEntity<List<Pessoa>> listarTodos() throws Exception{
 		return ResponseEntity.ok(pessoaService.listarTodos()); 
 	}
 	

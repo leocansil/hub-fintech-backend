@@ -3,14 +3,15 @@ package br.com.fintech.hub.services;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.print.CancelablePrintJob;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.fintech.hub.entities.Pessoa;
 import br.com.fintech.hub.entities.enums.TipoPessoa;
+import br.com.fintech.hub.exceptions.DataDuplicityException;
+import br.com.fintech.hub.exceptions.NecessaryFieldsException;
 import br.com.fintech.hub.repositories.PessoaRepository;
+import javassist.NotFoundException;
 
 @Service
 public class PessoaService {
@@ -24,7 +25,7 @@ public class PessoaService {
 		int soma = 0;
 		for (int indice = str.length() - 1, digito; indice >= 0; indice-- ) {
 			digito = Integer.parseInt(str.substring(indice,  indice + 1));
-			soma =+ digito * peso[peso.length-str.length() + indice];
+			soma += digito * peso[peso.length-str.length() + indice];
 		}
 		soma = 11 - soma % 11;
 		return soma > 9 ? 0 : soma;
@@ -47,15 +48,15 @@ public class PessoaService {
 	}
 	
 	private void validateDocumento(String documento, String tipoDocumento) throws Exception {
-		documento = documento.trim().replace(".", "").replace("-","").replaceAll("/", "");
+		String docPrep = documento.trim().replace(".", "").replace("-","").replaceAll("/", "");
 		if(tipoDocumento.equals(CPF)){
-			if(!isValidCPF(documento)){
-				throw new Exception("CPF não válido!");
+			if(!isValidCPF(docPrep)){
+				throw new Exception("CPF (" +documento+ ") não válido!");
 			}
 		}
 		if(tipoDocumento.equals(CNPJ)){
-			if(!isValidCNPJ(documento)) {
-				throw new Exception("CNPJ não válido!");
+			if(!isValidCNPJ(docPrep)) {
+				throw new Exception("CNPJ (" +documento+ ") não válido!");
 			}
 		}
 	}
@@ -82,10 +83,10 @@ public class PessoaService {
 			}
 			
 			if(!camposObrigatorios.isEmpty()) {
-				throw new Exception("Campos obrigatórios não foram respeitados!");
+				throw new NecessaryFieldsException("Campos obrigatórios não foram respeitados!");
 			}
-		}
-		throw new Exception("Pessoa não deve ser nula");
+		} else
+			throw new Exception("Pessoa não deve ser nula");
 	}
 	
 
@@ -103,14 +104,14 @@ public class PessoaService {
 		Pessoa pessoa = pessoaRepository.findOne(id);
 		if(pessoa != null)
 			return pessoa;
-		throw new Exception("Pessoa não encontrada");
+		throw new NotFoundException("Pessoa com id: " + id + " não encontrada!");
 	}
 
 	public Pessoa atualizar(Pessoa pessoa, Long id) throws Exception {
 		validate(pessoa);
 		Pessoa pessoaSalva = pessoaRepository.findByCpfCnpj(pessoa.getCpfCnpj());
 		if(pessoaSalva != null && !pessoaSalva.getId().equals(id))
-			throw new Exception("Não é possível atualizar pessoa, geraria duplicidade de dados para Documento!");
+			throw new DataDuplicityException("Não é possível atualizar pessoa, geraria duplicidade de dados para Documento! (" + pessoa.getCpfCnpj() + ")");
 		pessoaSalva = buscarPessoa(id);
 		pessoaSalva.setNomeFantasia(pessoa.getNomeFantasia());
 		pessoaSalva.setNomeOuRazaoSocial(pessoa.getNomeOuRazaoSocial());
